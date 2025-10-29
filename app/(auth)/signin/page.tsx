@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter, useSearchParams } from 'next/navigation';
+import type { Route } from "next";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -12,6 +13,14 @@ export default function SignInPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Ensure we only navigate to internal paths and satisfy typedRoutes
+  function toRoute(url?: string | null): Route {
+    const u = typeof url === "string" ? url : "/";
+    // Block external redirects; only allow internal app paths
+    if (!u.startsWith("/")) return "/" as Route;
+    return u as Route;
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -34,7 +43,7 @@ export default function SignInPage() {
         }
       } catch {}
 
-      router.push(redirectTo);
+      router.push(toRoute(redirectTo));
     } catch (err: any) {
       setError(err?.message ?? 'Sign in failed.');
     } finally {
