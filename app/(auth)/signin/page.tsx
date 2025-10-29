@@ -1,4 +1,5 @@
 'use client';
+export const dynamic = "force-dynamic";
 
 import { useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
@@ -43,7 +44,8 @@ export default function SignInPage() {
         }
       } catch {}
 
-      router.push(toRoute(redirectTo));
+      router.push(redirectTo ?? "/");
+
     } catch (err: any) {
       setError(err?.message ?? 'Sign in failed.');
     } finally {
