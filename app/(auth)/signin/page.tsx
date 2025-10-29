@@ -44,7 +44,7 @@ export default function SignInPage() {
         }
       } catch {}
 
-      router.push(redirectTo ?? "/");
+      router.push((redirectTo ?? "/") as any);
 
     } catch (err: any) {
       setError(err?.message ?? 'Sign in failed.');
