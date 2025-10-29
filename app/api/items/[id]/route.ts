@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabaseClient';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
   try {
+    const supabase = createRouteHandlerClient({ cookies });
     const { data: userData, error: userErr } = await supabase.auth.getUser();
     if (userErr || !userData.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     const userId = userData.user.id;

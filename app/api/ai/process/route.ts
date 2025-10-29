@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { openai } from '@/lib/openai';
-import { supabase } from '@/lib/supabaseClient';
+import { supabaseService } from '@/lib/supabaseServiceRole';
 
 type Payload = {
   itemId: string;
@@ -52,10 +52,10 @@ export async function POST(req: NextRequest) {
 
     // 3) Store tags + embedding
     if (tags.length > 0) {
-      await supabase.from('item_tags').insert(tags.map((t) => ({ item_id: itemId, tag: t })));
+      await supabaseService.from('item_tags').insert(tags.map((t) => ({ item_id: itemId, tag: t })));
     }
 
-    await supabase.from('item_embeddings').insert({
+    await supabaseService.from('item_embeddings').insert({
       item_id: itemId,
       embedding: vector as unknown as number[],
       provider: 'openai',

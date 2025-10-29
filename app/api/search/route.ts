@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabaseClient';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 import { openai } from '@/lib/openai';
 
 type SearchPayload = {
@@ -11,6 +12,7 @@ type SearchPayload = {
 
 export async function POST(req: NextRequest) {
   try {
+    const supabase = createRouteHandlerClient({ cookies });
     const { keyword = '', tags = [], imageUrl, limit = 20 } = (await req.json()) as SearchPayload;
 
     let useEmbedding = false;

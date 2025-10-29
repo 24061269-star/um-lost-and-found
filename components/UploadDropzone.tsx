@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 
 type UploadDropzoneProps = {
@@ -10,19 +10,16 @@ type UploadDropzoneProps = {
 };
 
 export function UploadDropzone({ onUploaded, maxFiles = 5, bucket = 'item-images' }: UploadDropzoneProps) {
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<{ file: File; preview: string }[]>([]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const previews = useMemo(
-    () =>
-      files.map((file) => ({
-        file,
-        url: URL.createObjectURL(file),
-      })),
-    [files]
-  );
+  useEffect(() => {
+    return () => {
+      files.forEach((f) => URL.revokeObjectURL(f.preview));
+    };
+  }, [files]);
 
   const onDrop = useCallback(
     (dropped: FileList | null) => {
@@ -30,7 +27,7 @@ export function UploadDropzone({ onUploaded, maxFiles = 5, bucket = 'item-images
       const arr = Array.from(dropped)
         .filter((f) => f.type.startsWith('image/'))
         .slice(0, maxFiles);
-      setFiles(arr);
+      setFiles(arr.map((file) => ({ file, preview: URL.createObjectURL(file) })));
       setError(null);
     },
     [maxFiles]
@@ -49,7 +46,7 @@ export function UploadDropzone({ onUploaded, maxFiles = 5, bucket = 'item-images
       const bucketName = bucket;
       const uploadedUrls: string[] = [];
 
-      for (const file of files) {
+      for (const { file } of files) {
         const ext = file.name.split('.').pop() || 'jpg';
         const path = `${userId}/${crypto.randomUUID()}.${ext}`;
         const { error: upErr } = await supabase.storage.from(bucketName).upload(path, file, {
@@ -94,12 +91,12 @@ export function UploadDropzone({ onUploaded, maxFiles = 5, bucket = 'item-images
         </div>
       </div>
 
-      {previews.length > 0 && (
+      {files.length > 0 && (
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {previews.map(({ url, file }) => (
-            <div key={url} className="overflow-hidden rounded-xl border">
+          {files.map(({ preview, file }) => (
+            <div key={preview} className="overflow-hidden rounded-xl border">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={url} alt={file.name} className="h-32 w-full object-cover" />
+              <img src={preview} alt={file.name} className="h-32 w-full object-cover" />
             </div>
           ))}
         </div>

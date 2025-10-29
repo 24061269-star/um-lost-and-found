@@ -120,7 +120,7 @@ export default function SearchPage() {
       {results.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {results.map((r) => (
-            <a key={r.id} href={`/#`} className="group rounded-xl border p-3 hover:shadow">
+            <a key={r.id} href={`/items/${r.id}`} className="group rounded-xl border p-3 hover:shadow">
               <div className="aspect-video w-full overflow-hidden rounded-lg bg-gray-100">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 {r.image && <img src={r.image} alt={r.title} className="h-full w-full object-cover" />}
